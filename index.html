@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>カフェ注文管理</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #fffaf7;
+      color: #4a403d;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .summary {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .total-price {
+      font-size: 32px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .total-count {
+      text-align: center;
+      color: #888;
+      margin-top: 5px;
+    }
+
+    h2 {
+      margin-top: 28px;
+      border-bottom: 2px solid #eaded8;
+      padding-bottom: 8px;
+    }
+
+    .product {
+      background: white;
+      border-radius: 14px;
+      padding: 15px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
+    .product-name {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .price {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 10px;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 1px solid #d8ccc7;
+      background: #fff;
+      border-radius: 9px;
+      padding: 10px 12px;
+      min-height: 44px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    button:hover {
+      background: #f8f0ec;
+    }
+
+    .quantity {
+      width: 70px;
+      height: 44px;
+      text-align: center;
+      border: 1px solid #d8ccc7;
+      border-radius: 9px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .materials {
+      background: white;
+      border-radius: 16px;
+      padding: 18px;
+      margin-top: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .material {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .material:last-child {
+      border-bottom: none;
+    }
+
+    .empty {
+      color: #999;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .reset {
+      width: 100%;
+      margin-top: 25px;
+      background: #f5e5df;
+      border: none;
+      font-weight: bold;
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>☕ カフェ注文管理</h1>
+
+  <div class="summary">
+    <div class="total-price" id="totalPrice">¥0</div>
+    <div class="total-count" id="totalCount">注文 0個</div>
+  </div>
+
+  <h2>🍰 食べ物</h2>
+  <div id="foodList"></div>
+
+  <h2>🥤 飲み物</h2>
+  <div id="drinkList"></div>
+
+  <div class="materials">
+    <h2>📦 必要な材料</h2>
+    <div id="materialList">
+      <div class="empty">
+        商品を注文すると必要な材料が表示されます。
+      </div>
+    </div>
+  </div>
+
+  <button class="reset" id="resetButton">
+    🗑 注文をリセット
+  </button>
+
+</div>
+
+
+<script>
+
+  // =========================
+  // 商品データ
+  // =========================
+
+  const PRICE = 40000;
+
+  const products = [
+
+    {
+      name: "いちごパンケーキ",
+      category: "food",
+      materials: {
+        "小麦粉": 1,
+        "ミルク": 1,
+        "いちご": 1
+      }
+    },
+
+    {
+      name: "チョコバナナパンケーキ",
+      category: "food",
+      materials: {
+        "小麦粉": 1,
+        "バナナ": 1,
+        "チョコレート": 1
+      }
+    },
+
+    {
+      name: "いちごショートケーキ",
+      category: "food",
+      materials: {
+        "小麦粉": 1,
+        "ミルク": 1,
+        "いちご": 1
+      }
+    },
+
+    {
+      name: "濃厚ガトーショコラ",
+      category: "food",
+      materials: {
+        "小麦粉": 1,
+        "ミルク": 1,
+        "チョコレート": 1
+      }
+    },
+
+    {
+      name: "カフェラテ",
+      category: "drink",
+      materials: {
+        "ミルク": 1,
+        "コーヒー豆": 1
+      }
+    },
+
+    {
+      name: "キャラメルラテ",
+      category: "drink",
+      materials: {
+        "ミルク": 1,
+        "コーヒー豆": 1,
+        "キャラメル": 1
+      }
+    },
+
+    {
+      name: "いちごラテ",
+      category: "drink",
+      materials: {
+        "ミルク": 1,
+        "いちご": 1
+      }
+    },
+
+    {
+      name: "抹茶ラテ",
+      category: "drink",
+      materials: {
+        "ミルク": 1,
+        "抹茶": 1
+      }
+    }
+
+  ];
+
+
+  // =========================
+  // 注文数
+  // =========================
+
+  const quantities = [];
+
+  for (let i = 0; i < products.length; i++) {
+    quantities.push(0);
+  }
+
+
+  // =========================
+  // 商品画面を作る
+  // =========================
+
+  function createProduct(product, index) {
+
+    const div = document.createElement("div");
+
+    div.className = "product";
+
+    div.innerHTML = `
+
+      <div class="product-name">
+        ${product.name}
+      </div>
+
+      <div class="price">
+        ¥${PRICE.toLocaleString()} / 個
+      </div>
+
+      <div class="controls">
+
+        <button onclick="changeQuantity(${index}, -10)">
+          −10
+        </button>
+
+        <button onclick="changeQuantity(${index}, -1)">
+          −1
+        </button>
+
+        <input
+          class="quantity"
+          type="number"
+          min="0"
+          value="0"
+          id="quantity-${index}"
+          onchange="inputQuantity(${index})"
+        >
+
+        <button onclick="changeQuantity(${index}, 1)">
+          ＋1
+        </button>
+
+        <button onclick="changeQuantity(${index}, 10)">
+          ＋10
+        </button>
+
+      </div>
+    `;
+
+    return div;
+  }
+
+
+  // =========================
+  // 商品を表示
+  // =========================
+
+  const foodList = document.getElementById("foodList");
+  const drinkList = document.getElementById("drinkList");
+
+  products.forEach((product, index) => {
+
+    const element = createProduct(product, index);
+
+    if (product.category === "food") {
+      foodList.appendChild(element);
+    } else {
+      drinkList.appendChild(element);
+    }
+
+  });
+
+
+  // =========================
+  // ＋1 / ＋10 / −1 / −10
+  // =========================
+
+  function changeQuantity(index, amount) {
+
+    quantities[index] += amount;
+
+    if (quantities[index] < 0) {
+      quantities[index] = 0;
+    }
+
+    updateScreen();
+
+  }
+
+
+  // =========================
+  // 数字を直接入力
+  // =========================
+
+  function inputQuantity(index) {
+
+    const input = document.getElementById(
+      "quantity-" + index
+    );
+
+    let value = parseInt(input.value);
+
+    if (isNaN(value) || value < 0) {
+      value = 0;
+    }
+
+    quantities[index] = value;
+
+    updateScreen();
+
+  }
+
+
+  // =========================
+  // 画面更新
+  // =========================
+
+  function updateScreen() {
+
+    let totalCount = 0;
+
+    let totalPrice = 0;
+
+    const materials = {};
+
+
+    products.forEach((product, index) => {
+
+      const quantity = quantities[index];
+
+      totalCount += quantity;
+
+      totalPrice += quantity * PRICE;
+
+
+      // 材料を計算
+
+      for (const material in product.materials) {
+
+        const amount =
+          product.materials[material] * quantity;
+
+        if (!materials[material]) {
+          materials[material] = 0;
+        }
+
+        materials[material] += amount;
+
+      }
+
+    });
+
+
+    // 合計金額
+
+    document.getElementById("totalPrice").textContent =
+      "¥" + totalPrice.toLocaleString();
+
+
+    // 合計個数
+
+    document.getElementById("totalCount").textContent =
+      "注文 " + totalCount + "個";
+
+
+    // 入力欄を更新
+
+    quantities.forEach((quantity, index) => {
+
+      document.getElementById(
+        "quantity-" + index
+      ).value = quantity;
+
+    });
+
+
+    // 材料表示
+
+    const materialList =
+      document.getElementById("materialList");
+
+    materialList.innerHTML = "";
+
+
+    const materialNames =
+      Object.keys(materials).filter(
+        material => materials[material] > 0
+      );
+
+
+    if (materialNames.length === 0) {
+
+      materialList.innerHTML = `
+        <div class="empty">
+          商品を注文すると必要な材料が表示されます。
+        </div>
+      `;
+
+      return;
+
+    }
+
+
+    materialNames.forEach(material => {
+
+      const div = document.createElement("div");
+
+      div.className = "material";
+
+      div.innerHTML = `
+        <span>${material}</span>
+        <strong>${materials[material]}個</strong>
+      `;
+
+      materialList.appendChild(div);
+
+    });
+
+  }
+
+
+  // =========================
+  // リセット
+  // =========================
+
+  document
+    .getElementById("resetButton")
+    .addEventListener("click", function() {
+
+      const result =
+        confirm("注文内容をすべてリセットしますか？");
+
+      if (!result) {
+        return;
+      }
+
+      for (let i = 0; i < quantities.length; i++) {
+        quantities[i] = 0;
+      }
+
+      updateScreen();
+
+    });
+
+
+  // 最初の画面
+
+  updateScreen();
+
+</script>
+
+</body>
+</html>
