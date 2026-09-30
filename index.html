@@ -33,6 +33,30 @@
       padding-bottom: 8px;
       border-bottom: 2px solid #eaded8;
     }
+    .update-info {
+  margin-top: 30px;
+  padding: 15px;
+  font-size: 12px;
+  color: #8a7b76;
+  text-align: center;
+  border-top: 1px solid #eadfd9;
+}
+
+.update-info h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: #6f625d;
+}
+
+.update-info ul {
+  margin: 0 0 10px;
+  padding-left: 0;
+  list-style: none;
+}
+
+.update-info p {
+  margin: 5px 0;
+}
 
     /* 合計金額 */
     .summary {
@@ -202,7 +226,7 @@
 
 <div class="container">
 
-  <h1>☕ カフェ注文管理</h1>
+ <h1>猫カフェ店舗用 🐈‍⬛ 計算ツール</h1>
 
 
   <!-- =========================
@@ -243,35 +267,24 @@
   <!-- =========================
        注文内容・材料
   ========================== -->
+<div class="info-box">
 
-  <div class="info-box">
+  <h2>注文内容</h2>
+  <div id="orderList">
+    まだ注文はありません
+  </div>
 
+  <div class="summary">
+    <div>合計個数：<span id="totalCount">0</span>個</div>
+    <div>合計金額：<span id="totalPrice">0</span>円</div>
+  </div>
 
-    <!-- 注文内容 -->
+  <h2>必要な材料</h2>
+  <div id="materialList">
+    まだ注文はありません
+  </div>
 
-    <h2>📝 注文内容</h2>
-
-    <div id="orderList">
-
-      <div class="empty">
-        注文された商品がここに表示されます。
-      </div>
-
-    </div>
-
-
-    <!-- 必要な材料 -->
-
-    <h2>📦 必要な材料</h2>
-
-    <div id="materialList">
-
-      <div class="empty">
-        商品を注文すると必要な材料が表示されます。
-      </div>
-
-    </div>
-
+</div>
 
   </div>
 
@@ -879,6 +892,15 @@
   updateScreen();
 
 </script>
+<div class="update-info">
+  <h3>アップデート内容</h3>
+  <ul>
+    <li>注文内容が一覧で表示されるよう修正</li>
+  </ul>
 
+  <p>最終更新日：2026.09.30</p>
+
+  <p>不具合・修正要望は恋すみれまで 💜</p>
+</div>
 </body>
 </html>
