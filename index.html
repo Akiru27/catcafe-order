@@ -25,9 +25,16 @@
 
     h1 {
       text-align: center;
-      margin-bottom: 20px;
+      margin: 10px 0 20px;
     }
 
+    h2 {
+      margin: 28px 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #eaded8;
+    }
+
+    /* 合計金額 */
     .summary {
       background: white;
       border-radius: 16px;
@@ -48,12 +55,7 @@
       margin-top: 5px;
     }
 
-    h2 {
-      margin-top: 28px;
-      border-bottom: 2px solid #eaded8;
-      padding-bottom: 8px;
-    }
-
+    /* 商品 */
     .product {
       background: white;
       border-radius: 14px;
@@ -73,6 +75,7 @@
       margin-bottom: 10px;
     }
 
+    /* ボタンと個数 */
     .controls {
       display: flex;
       align-items: center;
@@ -83,6 +86,7 @@
     button {
       border: 1px solid #d8ccc7;
       background: #fff;
+      color: #4a403d;
       border-radius: 9px;
       padding: 10px 12px;
       min-height: 44px;
@@ -102,9 +106,11 @@
       border-radius: 9px;
       font-size: 18px;
       font-weight: bold;
+      background: #fff;
     }
 
-    .materials {
+    /* 注文内容・材料 */
+    .info-box {
       background: white;
       border-radius: 16px;
       padding: 18px;
@@ -112,23 +118,43 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
-    .material {
+    .info-box h2 {
+      margin-top: 0;
+    }
+
+    .info-box h2:not(:first-child) {
+      margin-top: 28px;
+    }
+
+    .list-row {
       display: flex;
       justify-content: space-between;
-      padding: 10px 0;
+      align-items: center;
+      gap: 15px;
+      padding: 11px 2px;
       border-bottom: 1px solid #eee;
     }
 
-    .material:last-child {
+    .list-row:last-child {
       border-bottom: none;
+    }
+
+    .list-name {
+      font-weight: 500;
+    }
+
+    .list-quantity {
+      font-weight: bold;
+      white-space: nowrap;
     }
 
     .empty {
       color: #999;
       text-align: center;
-      padding: 10px;
+      padding: 12px 5px;
     }
 
+    /* リセット */
     .reset {
       width: 100%;
       margin-top: 25px;
@@ -137,8 +163,40 @@
       font-weight: bold;
       font-size: 16px;
     }
+
+    .reset:hover {
+      background: #ecd8d0;
+    }
+
+    /* スマホ用 */
+    @media (max-width: 500px) {
+
+      body {
+        padding: 12px;
+      }
+
+      .controls {
+        gap: 4px;
+      }
+
+      .controls button {
+        padding: 9px 10px;
+        font-size: 14px;
+      }
+
+      .quantity {
+        width: 62px;
+      }
+
+      .total-price {
+        font-size: 28px;
+      }
+
+    }
+
   </style>
 </head>
+
 
 <body>
 
@@ -146,42 +204,106 @@
 
   <h1>☕ カフェ注文管理</h1>
 
+
+  <!-- =========================
+       合計
+  ========================== -->
+
   <div class="summary">
-    <div class="total-price" id="totalPrice">¥0</div>
-    <div class="total-count" id="totalCount">注文 0個</div>
+
+    <div class="total-price" id="totalPrice">
+      ¥0
+    </div>
+
+    <div class="total-count" id="totalCount">
+      注文 0個
+    </div>
+
   </div>
 
+
+  <!-- =========================
+       食べ物
+  ========================== -->
+
   <h2>🍰 食べ物</h2>
+
   <div id="foodList"></div>
 
+
+  <!-- =========================
+       飲み物
+  ========================== -->
+
   <h2>🥤 飲み物</h2>
+
   <div id="drinkList"></div>
 
-  <div class="materials">
+
+  <!-- =========================
+       注文内容・材料
+  ========================== -->
+
+  <div class="info-box">
+
+
+    <!-- 注文内容 -->
+
+    <h2>📝 注文内容</h2>
+
+    <div id="orderList">
+
+      <div class="empty">
+        注文された商品がここに表示されます。
+      </div>
+
+    </div>
+
+
+    <!-- 必要な材料 -->
+
     <h2>📦 必要な材料</h2>
+
     <div id="materialList">
+
       <div class="empty">
         商品を注文すると必要な材料が表示されます。
       </div>
+
     </div>
+
+
   </div>
 
-  <button class="reset" id="resetButton">
+
+  <!-- =========================
+       リセット
+  ========================== -->
+
+  <button
+    class="reset"
+    id="resetButton"
+    type="button"
+  >
     🗑 注文をリセット
   </button>
+
 
 </div>
 
 
 <script>
 
-  // =========================
-  // 商品データ
-  // =========================
+  /* =========================================
+     商品データ
+  ========================================= */
 
   const PRICE = 40000;
 
+
   const products = [
+
+    /* 食べ物 */
 
     {
       name: "いちごパンケーキ",
@@ -223,6 +345,9 @@
       }
     },
 
+
+    /* 飲み物 */
+
     {
       name: "カフェラテ",
       category: "drink",
@@ -263,26 +388,23 @@
   ];
 
 
-  // =========================
-  // 注文数
-  // =========================
+  /* =========================================
+     注文個数
+  ========================================= */
 
-  const quantities = [];
-
-  for (let i = 0; i < products.length; i++) {
-    quantities.push(0);
-  }
+  const quantities = products.map(() => 0);
 
 
-  // =========================
-  // 商品画面を作る
-  // =========================
+  /* =========================================
+     商品を作る
+  ========================================= */
 
   function createProduct(product, index) {
 
     const div = document.createElement("div");
 
     div.className = "product";
+
 
     div.innerHTML = `
 
@@ -296,11 +418,17 @@
 
       <div class="controls">
 
-        <button onclick="changeQuantity(${index}, -10)">
+        <button
+          type="button"
+          data-action="minus10"
+        >
           −10
         </button>
 
-        <button onclick="changeQuantity(${index}, -1)">
+        <button
+          type="button"
+          data-action="minus1"
+        >
           −1
         </button>
 
@@ -308,89 +436,159 @@
           class="quantity"
           type="number"
           min="0"
+          step="1"
           value="0"
-          id="quantity-${index}"
-          onchange="inputQuantity(${index})"
+          inputmode="numeric"
+          aria-label="${product.name}の個数"
         >
 
-        <button onclick="changeQuantity(${index}, 1)">
+        <button
+          type="button"
+          data-action="plus1"
+        >
           ＋1
         </button>
 
-        <button onclick="changeQuantity(${index}, 10)">
+        <button
+          type="button"
+          data-action="plus10"
+        >
           ＋10
         </button>
 
       </div>
     `;
 
+
+    const input =
+      div.querySelector(".quantity");
+
+
+    /* −10 */
+
+    div
+      .querySelector('[data-action="minus10"]')
+      .addEventListener("click", function() {
+
+        changeQuantity(index, -10);
+
+      });
+
+
+    /* −1 */
+
+    div
+      .querySelector('[data-action="minus1"]')
+      .addEventListener("click", function() {
+
+        changeQuantity(index, -1);
+
+      });
+
+
+    /* ＋1 */
+
+    div
+      .querySelector('[data-action="plus1"]')
+      .addEventListener("click", function() {
+
+        changeQuantity(index, 1);
+
+      });
+
+
+    /* ＋10 */
+
+    div
+      .querySelector('[data-action="plus10"]')
+      .addEventListener("click", function() {
+
+        changeQuantity(index, 10);
+
+      });
+
+
+    /* 数字を直接入力 */
+
+    input.addEventListener("change", function() {
+
+      let value = parseInt(input.value, 10);
+
+
+      if (isNaN(value) || value < 0) {
+
+        value = 0;
+
+      }
+
+
+      quantities[index] = value;
+
+      updateScreen();
+
+    });
+
+
     return div;
+
   }
 
 
-  // =========================
-  // 商品を表示
-  // =========================
+  /* =========================================
+     商品を表示
+  ========================================= */
 
-  const foodList = document.getElementById("foodList");
-  const drinkList = document.getElementById("drinkList");
+  const foodList =
+    document.getElementById("foodList");
 
-  products.forEach((product, index) => {
 
-    const element = createProduct(product, index);
+  const drinkList =
+    document.getElementById("drinkList");
+
+
+  products.forEach(function(product, index) {
+
+    const element =
+      createProduct(product, index);
+
 
     if (product.category === "food") {
+
       foodList.appendChild(element);
+
     } else {
+
       drinkList.appendChild(element);
+
     }
 
   });
 
 
-  // =========================
-  // ＋1 / ＋10 / −1 / −10
-  // =========================
+  /* =========================================
+     個数を変更
+  ========================================= */
 
   function changeQuantity(index, amount) {
 
     quantities[index] += amount;
 
+
     if (quantities[index] < 0) {
+
       quantities[index] = 0;
+
     }
+
 
     updateScreen();
 
   }
 
 
-  // =========================
-  // 数字を直接入力
-  // =========================
-
-  function inputQuantity(index) {
-
-    const input = document.getElementById(
-      "quantity-" + index
-    );
-
-    let value = parseInt(input.value);
-
-    if (isNaN(value) || value < 0) {
-      value = 0;
-    }
-
-    quantities[index] = value;
-
-    updateScreen();
-
-  }
-
-
-  // =========================
-  // 画面更新
-  // =========================
+  /* =========================================
+     画面更新
+  ========================================= */
 
   function updateScreen() {
 
@@ -398,79 +596,208 @@
 
     let totalPrice = 0;
 
+
+    /* 材料の合計 */
+
     const materials = {};
 
 
-    products.forEach((product, index) => {
+    /* 商品を計算 */
 
-      const quantity = quantities[index];
+    products.forEach(function(product, index) {
+
+      const quantity =
+        quantities[index];
+
+
+      /* 個数 */
 
       totalCount += quantity;
 
-      totalPrice += quantity * PRICE;
+
+      /* 金額 */
+
+      totalPrice +=
+        quantity * PRICE;
 
 
-      // 材料を計算
+      /* 材料 */
 
-      for (const material in product.materials) {
+      Object.entries(product.materials)
+        .forEach(function([material, amount]) {
 
-        const amount =
-          product.materials[material] * quantity;
+          if (!materials[material]) {
 
-        if (!materials[material]) {
-          materials[material] = 0;
-        }
+            materials[material] = 0;
 
-        materials[material] += amount;
+          }
 
-      }
+
+          materials[material] +=
+            amount * quantity;
+
+        });
 
     });
 
 
-    // 合計金額
+    /* =========================================
+       合計金額
+    ========================================= */
 
-    document.getElementById("totalPrice").textContent =
+    document.getElementById("totalPrice")
+      .textContent =
       "¥" + totalPrice.toLocaleString();
 
 
-    // 合計個数
+    /* =========================================
+       合計個数
+    ========================================= */
 
-    document.getElementById("totalCount").textContent =
+    document.getElementById("totalCount")
+      .textContent =
       "注文 " + totalCount + "個";
 
 
-    // 入力欄を更新
+    /* =========================================
+       商品の入力欄を更新
+    ========================================= */
 
-    quantities.forEach((quantity, index) => {
+    quantities.forEach(function(quantity, index) {
 
-      document.getElementById(
-        "quantity-" + index
-      ).value = quantity;
+      const input =
+        document.getElementById(
+          "quantity-" + index
+        );
+
+
+      /*
+        入力欄は商品を作ったときに
+        IDを付けていないため、
+        下で商品リストから取得する
+      */
 
     });
 
 
-    // 材料表示
+    /* =========================================
+       すべての入力欄を更新
+    ========================================= */
+
+    const inputs =
+      document.querySelectorAll(".quantity");
+
+
+    inputs.forEach(function(input, index) {
+
+      input.value =
+        quantities[index];
+
+    });
+
+
+    /* =========================================
+       注文内容
+    ========================================= */
+
+    const orderList =
+      document.getElementById("orderList");
+
+
+    orderList.innerHTML = "";
+
+
+    let hasOrders = false;
+
+
+    products.forEach(function(product, index) {
+
+      const quantity =
+        quantities[index];
+
+
+      /* 0個の商品は表示しない */
+
+      if (quantity <= 0) {
+
+        return;
+
+      }
+
+
+      hasOrders = true;
+
+
+      const row =
+        document.createElement("div");
+
+
+      row.className = "list-row";
+
+
+      row.innerHTML = `
+
+        <span class="list-name">
+          ${product.name}
+        </span>
+
+        <span class="list-quantity">
+          × ${quantity}
+        </span>
+
+      `;
+
+
+      orderList.appendChild(row);
+
+    });
+
+
+    /* 注文がない場合 */
+
+    if (!hasOrders) {
+
+      orderList.innerHTML = `
+
+        <div class="empty">
+          注文された商品がここに表示されます。
+        </div>
+
+      `;
+
+    }
+
+
+    /* =========================================
+       必要な材料
+    ========================================= */
 
     const materialList =
       document.getElementById("materialList");
+
 
     materialList.innerHTML = "";
 
 
     const materialNames =
-      Object.keys(materials).filter(
-        material => materials[material] > 0
-      );
+      Object.keys(materials)
+        .filter(function(material) {
 
+          return materials[material] > 0;
+
+        });
+
+
+    /* 材料がない場合 */
 
     if (materialNames.length === 0) {
 
       materialList.innerHTML = `
+
         <div class="empty">
           商品を注文すると必要な材料が表示されます。
         </div>
+
       `;
 
       return;
@@ -478,49 +805,76 @@
     }
 
 
-    materialNames.forEach(material => {
+    /* 材料を表示 */
 
-      const div = document.createElement("div");
+    materialNames.forEach(function(material) {
 
-      div.className = "material";
+      const row =
+        document.createElement("div");
 
-      div.innerHTML = `
-        <span>${material}</span>
-        <strong>${materials[material]}個</strong>
+
+      row.className = "list-row";
+
+
+      row.innerHTML = `
+
+        <span class="list-name">
+          ${material}
+        </span>
+
+        <span class="list-quantity">
+          ${materials[material]}個
+        </span>
+
       `;
 
-      materialList.appendChild(div);
+
+      materialList.appendChild(row);
 
     });
 
   }
 
 
-  // =========================
-  // リセット
-  // =========================
+  /* =========================================
+     リセット
+  ========================================= */
 
   document
     .getElementById("resetButton")
     .addEventListener("click", function() {
 
+
+      /* 確認 */
+
       const result =
-        confirm("注文内容をすべてリセットしますか？");
+        confirm(
+          "注文内容をすべてリセットしますか？"
+        );
+
 
       if (!result) {
+
         return;
+
       }
 
-      for (let i = 0; i < quantities.length; i++) {
-        quantities[i] = 0;
-      }
+
+      /* すべて0にする */
+
+      quantities.fill(0);
+
+
+      /* 画面更新 */
 
       updateScreen();
 
     });
 
 
-  // 最初の画面
+  /* =========================================
+     最初の画面
+  ========================================= */
 
   updateScreen();
 
